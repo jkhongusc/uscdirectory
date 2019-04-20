@@ -1,13 +1,28 @@
+/* 
+This lambda function will be called from the API gateway. 
+
+Input: The event obj will contain a lot of information. Build model (ldap query) based on parameters
+
+Return: Example return expected by the API gateway
+    var response = {
+        "statusCode": 200,
+        "headers": {
+            "my_header": "my_value"
+        },
+        "body": JSON.stringify(entry.object),
+        "isBase64Encoded": false
+    };
+    callback(null,response);
+
+*/
 exports.handler = function(event, context, callback) {
 
-//    if (!event.URL) {
-//        var error = new Error('URL event variable not set');
-//        callback(error);
-//        return;
-//    }
-
-
-    console.log('event: ' + JSON.stringify(event));
+    if (!event) {
+        var error = new Error('event variable not set');
+        callback(error);
+        return;
+    }
+    //console.log('event: ' + JSON.stringify(event));
 
 
     if (!process.env.LDAP_URL) {
@@ -64,19 +79,19 @@ exports.handler = function(event, context, callback) {
     //var url = event.URL;
     //console.log('final URL: ' + url);
     var ldapurl = process.env.LDAP_URL;
-    console.log('final : LDAP_URL: ' + ldapurl);
+    console.log('final LDAP_URL: ' + ldapurl);
     var ldapbase = process.env.LDAP_BASE;
-    console.log('final : LDAP_BASE: ' + ldapbase);
+    console.log('final LDAP_BASE: ' + ldapbase);
     var ldapusernamefacultystaff = process.env.LDAP_USERNAME_FACULTYSTAFF;
-    console.log('final : LDAP_USERNAME_FACULTYSTAFF: ' + ldapusernamefacultystaff);
+    console.log('final LDAP_USERNAME_FACULTYSTAFF: ' + ldapusernamefacultystaff);
     var ldappasswordfacultystaff = process.env.LDAP_PASSWORD_FACULTYSTAFF;
-    console.log('final : LDAP_PASSWORD_FACULTYSTAFF: ' + ldappasswordfacultystaff);
+    console.log('final LDAP_PASSWORD_FACULTYSTAFF: <hidden>');
     var ldapusernamestudent = process.env.LDAP_USERNAME_STUDENT;
-    console.log('final : LDAP_USERNAME_STUDENT: ' + ldapusernamestudent);
+    console.log('final LDAP_USERNAME_STUDENT: ' + ldapusernamestudent);
     var ldappasswordstudent = process.env.LDAP_PASSWORD_STUDENT;
-    console.log('final : LDAP_PASSWORD_STUDENT: ' + ldappasswordstudent);
+    console.log('final LDAP_PASSWORD_STUDENT: <hidden>');
     var stoken = process.env.SLACKTOKEN;
-    console.log('final SLACKTOKEN: ' + stoken);
+    console.log('final SLACKTOKEN: <hidden>');
     var sname = process.env.SLACKNAME;
     console.log('final SLACKNAME: ' + sname);
     var schannel = process.env.SLACKCHANNEL;
@@ -98,11 +113,68 @@ exports.handler = function(event, context, callback) {
     }
 //slackpost("Starting broken link checker for: "+url);
 
+
+
+    // which event parameter to use as logic controller
+    // event.path
+    var controller = require('./controller');
+    const USCLdap = require('./uscldap');
+    var uscldapclient = new USCLdap(event.queryStringParameters);
+    if (controller.isUscpvidQuery) {
+        uscldapclient.uscpvid = controller.uscpvid;
+    }
+    uscldapclient.print();
+    /*
+    controller.print();
+    console.log('isFacultyStaff: ' + controller.isFacultyStaffQuery);
+    console.log('isStudent: ' + controller.isStudentQuery);
+    console.log('isUscpvid: ' + controller.isUscpvidQuery);
+    if (controller.isUscpvidQuery) {
+        console.log('uscpvid: ' + controller.uscpvid);
+    }
+    */
+    var ldapusername = ldapusernamefacultystaff;
+    var ldappassword = ldappasswordfacultystaff;
+    var ldapoptions = null;
+    if (controller.isFacultyStaffQuery) {
+       ldapusername = ldapusernamefacultystaff;
+       ldappassword = ldappasswordfacultystaff;
+        if (controller.isUscpvidQuery) {
+            ldapoptions = uscldapclient.uscpvidOptions;
+            console.log(JSON.stringify(ldapoptions));
+            console.log('isFacultyStaff uscpvid query: '+ldapoptions.filter);
+
+        } else {
+            console.log('isFacultyStaff uscpvid search: ');
+
+        }
+
+    } else if (controller.isStudentQuery) {
+        ldapusername = ldapusernamestudent;
+        ldappassword = ldappasswordstudent;
+        if (controller.isUscpvidQuery) {
+            ldapoptions = uscldapclient.uscpvidOptions;
+            console.log(JSON.stringify(ldapoptions));
+            console.log('isStudent uscpvid query: '+ldapoptions.filter);
+
+        } else {
+            console.log('isStudent uscpvid search: ');
+
+        }
+
+    } else {
+        // failed
+            console.log('[ERROR]: Invalid query');
+    }
+
+
+    //process.exit();
+
     var ldap = require('ldapjs');
     var client = ldap.createClient({
           url: `${ldapurl}`
     });
-    client.bind(ldapusernamefacultystaff,ldappasswordfacultystaff, function(err) {
+    client.bind(ldapusername,ldappassword, function(err) {
         if (err) {
           console.log('ldap bind error: ' + err);
           //assert.ifError(err);
@@ -112,7 +184,8 @@ exports.handler = function(event, context, callback) {
                 filter: 'uscpvid=scmq7nz9',
                 scope: 'sub'
             };
-            client.search (ldapbase,opts,(err,res) => {
+            //client.search (ldapbase,opts,(err,res) => {
+            client.search (ldapbase,ldapoptions,(err,res) => {
                 res.on('searchEntry', (entry) => {
                     console.log('Entry', JSON.stringify(entry.object));
                     var response = {
