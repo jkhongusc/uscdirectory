@@ -27,7 +27,41 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-nod
   - . ~/.nvm/nvm.sh
   - nvm install [nodejs version]
   - node -e "console.log('Running Node.js ' + process.version)"
-  - 
+  - npm init
+  - npm install ldapjs
+  - npm install dotenv
+  - npm install @slack/client
+
+
+## deployment
+To create deployment (zip) file:
+
+cd uscdirectory 
+
+./create_zip.sh
+
+Copy deployment script to an S3 bucket:
+
+aws s3 cp onlinedir.zip s3://tgw-us-west-2-public/onlinedir.zip
+
+
+## lambda configuration
+load code from S3 - https://s3.amazonaws.com/tgw-us-west-2-public/onlinedir.zip
+
+Runtime: Nodejs 8.10
+
+Handler: main.handler
+
+Environment variables (required): SLACKCHANNEL, SLACKNAME, SLACKTOKEN
+
+role: requires policies - AmazonEC2ReadOnlyAccess, AWSLambdaBasicExecutionRole
+
+Memory: 128MB
+
+Timeout: 1min
+
+Network: VPC
+
 
 
 
