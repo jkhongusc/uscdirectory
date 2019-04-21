@@ -24,7 +24,6 @@ exports.handler = function(event, context, callback) {
     }
     //console.log('event: ' + JSON.stringify(event));
 
-
     if (!process.env.LDAP_URL) {
         var error = new Error('LDAP_URL environment variable not set');
         callback(error);
@@ -111,8 +110,7 @@ exports.handler = function(event, context, callback) {
             username: sname
         });
     }
-//slackpost("Starting broken link checker for: "+url);
-
+    //slackpost("Starting broken link checker for: "+url);
 
 
     // which event parameter to use as logic controller
@@ -133,9 +131,9 @@ exports.handler = function(event, context, callback) {
         console.log('uscpvid: ' + controller.uscpvid);
     }
     */
-    var ldapusername = ldapusernamefacultystaff;
-    var ldappassword = ldappasswordfacultystaff;
-    var ldapoptions = null;
+    var ldapusername = "";
+    var ldappassword = "";
+    var ldapoptions = {};
     if (controller.isFacultyStaffQuery) {
        ldapusername = ldapusernamefacultystaff;
        ldappassword = ldappasswordfacultystaff;
@@ -145,7 +143,9 @@ exports.handler = function(event, context, callback) {
             console.log('isFacultyStaff uscpvid query: '+ldapoptions.filter);
 
         } else {
-            console.log('isFacultyStaff uscpvid search: ');
+            ldapoptions = uscldapclient.facultystaffOptions;
+            console.log(JSON.stringify(ldapoptions));
+            console.log('isFacultyStaff uscpvid search: '+ldapoptions.filter);
 
         }
 
@@ -158,7 +158,9 @@ exports.handler = function(event, context, callback) {
             console.log('isStudent uscpvid query: '+ldapoptions.filter);
 
         } else {
-            console.log('isStudent uscpvid search: ');
+            ldapoptions = uscldapclient.studentOptions;
+            console.log(JSON.stringify(ldapoptions));
+            console.log('isStudent uscpvid search: '+ldapoptions.filter);
 
         }
 
@@ -169,7 +171,6 @@ exports.handler = function(event, context, callback) {
 
 
     //process.exit();
-
     var ldap = require('ldapjs');
     var client = ldap.createClient({
           url: `${ldapurl}`
@@ -177,7 +178,6 @@ exports.handler = function(event, context, callback) {
     client.bind(ldapusername,ldappassword, function(err) {
         if (err) {
           console.log('ldap bind error: ' + err);
-          //assert.ifError(err);
         } else {
             console.log('ldap bind successful');
             var opts = {
@@ -215,9 +215,6 @@ exports.handler = function(event, context, callback) {
         }
         //callback(null,"completed successfully");
     });
-
-
-
 console.log('lambda end');
 
 
