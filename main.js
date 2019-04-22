@@ -190,7 +190,8 @@ exports.handler = function(event, context, callback) {
     //process.exit();
     var ldap = require('ldapjs');
     var client = ldap.createClient({
-          url: `${ldapurl}`
+          url: `${ldapurl}`,
+          timeout: 30000
     });
     var results = [];
     client.bind(ldapusername,ldappassword, function(err) {
@@ -210,6 +211,19 @@ exports.handler = function(event, context, callback) {
                     delete tmpentry.controls;
                     delete tmpentry.dn;
                     results.push(JSON.parse( JSON.stringify(tmpentry)));
+                    if (results.length == 100) {
+                        console.log('search hard-limit end: unbinding');
+                        var response = {
+                            "statusCode": 200,
+                            "body": JSON.stringify(results),
+                            "isBase64Encoded": false
+                         };
+                         callback(null,response);
+                        client.unbind(err => {
+                            //callback(null,"completed successfully");
+                        });
+
+                    }
                 });
                 res.on('searchReference', (referral) => {
                     //console.log('Referral', referral);
