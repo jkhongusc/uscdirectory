@@ -9,11 +9,14 @@ dotenv.config();
 event =
 {
     "resource": "/{faculty-staff+}",
+//    "path": "/faculty-staff",
 //    "path": "/faculty-staff/scmq7nz9",
     "path": "/student",
+//    "path": "/student/scqh4mf5",
     "httpMethod": "GET",
     "headers": null,
     "multiValueHeaders": null,
+//    "queryStringParameters": null,
     "queryStringParameters": {
         "test1": "test1",
         "first": "firstname",
@@ -25,8 +28,9 @@ event =
         "title": "title1",
         "major": "major1",
         "school": "school1",
-//        "count": "blah",
+        "count": "1",
 //        "basic": "hong"
+        "basic": "khong"
     },
     "multiValueQueryStringParameters": {
         "test1": [

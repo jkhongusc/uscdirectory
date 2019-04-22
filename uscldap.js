@@ -18,15 +18,19 @@ uscpvid=scbk8kr5
 module.exports = class USCLdap{
     constructor (parameters) {
         var filteredparameters = {};
+        if (typeof parameters == 'undefined' || !parameters) {
+            this.parameters = null;
+            return;
+        }
 
         // see if count paramter is set
-        if (parameters.count) {
+        if (typeof parameters.count !== 'undefined' && parameters.count) {
             console.log("count is set");
             this.count = true;    
             filteredparameters['count'] = true;
         }
         // see if basic paramter is set
-        if (parameters.basic) {
+        if (typeof parameters.basic !== 'undefined' && parameters.basic) {
             console.log("basic is set");
             this.basic = parameters.basic.trim();    
             filteredparameters['basic'] = this.basic;
@@ -46,7 +50,8 @@ module.exports = class USCLdap{
         return ['*'];
     }
     get COUNT_ATTRIBUTES() {
-        return ['dn'];
+        //return ['dn'];
+        return ['uscpvid'];
     }
     get FACULTYSTAFF_ATTRIBUTES () {
         return ['dn', 'mail', 'telephonenumber','uscpvid','uscsorteddisplayname'];
@@ -122,7 +127,7 @@ module.exports = class USCLdap{
         var myfilter = "";
         var myattributes = [];
         var advfilter = "";
-        if (this.parameters.basic) {
+        if (this.parameters && typeof this.parameters.basic !== 'undefined' && this.parameters.basic) {
             console.log("basic search filter");
             myfilter = this.FACULTYSTAFF_BASICSEARCH.replace(/_BASIC_/g,this.parameters.basic);
         } else {
@@ -135,7 +140,7 @@ module.exports = class USCLdap{
             myfilter = "(&"+advfilter+")";
             console.log("advance filter: "+myfilter);
         }
-        if (this.parameters.count) {
+        if (this.parameters && typeof this.parameters.count !== 'undefined' && this.parameters.count) {
             myattributes = this.COUNT_ATTRIBUTES;
         } else {
             myattributes = this.FACULTYSTAFF_ATTRIBUTES;

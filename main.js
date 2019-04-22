@@ -22,7 +22,7 @@ exports.handler = function(event, context, callback) {
         callback(error);
         return;
     }
-    //console.log('event: ' + JSON.stringify(event));
+    console.log('event: ' + JSON.stringify(event));
 
     if (!process.env.LDAP_URL) {
         var error = new Error('LDAP_URL environment variable not set');
@@ -138,7 +138,7 @@ exports.handler = function(event, context, callback) {
         uscldapclient.uscpvid = controller.uscpvid;
     }
     uscldapclient.print();
-    process.exit();
+    //process.exit();
     /*
     controller.print();
     console.log('isFacultyStaff: ' + controller.isFacultyStaffQuery);
@@ -162,7 +162,7 @@ exports.handler = function(event, context, callback) {
         } else {
             ldapoptions = uscldapclient.facultystaffOptions;
             console.log(JSON.stringify(ldapoptions));
-            console.log('isFacultyStaff uscpvid search: '+ldapoptions.filter);
+            console.log('isFacultyStaff search: '+ldapoptions.filter);
 
         }
 
@@ -177,7 +177,7 @@ exports.handler = function(event, context, callback) {
         } else {
             ldapoptions = uscldapclient.studentOptions;
             console.log(JSON.stringify(ldapoptions));
-            console.log('isStudent uscpvid search: '+ldapoptions.filter);
+            console.log('isStudent search: '+ldapoptions.filter);
 
         }
 
