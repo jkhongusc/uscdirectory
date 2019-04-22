@@ -21,6 +21,7 @@ I recommend creating a development environment on a standard EC2 Linux instance 
 - ssh to instance and install any necessary packages:
   - sudo yum update -y
   - sudo yum install git -y 
+  - npm install --save-dev jest -g
 
 https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
@@ -31,6 +32,7 @@ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-nod
   - npm install ldapjs
   - npm install dotenv
   - npm install @slack/client
+  - npm install --save-dev jest
 
 
 ## deployment
@@ -65,4 +67,13 @@ Network: VPC
 
 
 
+## Future Features
+- CloudFormation template
+- Monitoring
+- Cognito
+
   
+
+
+
+
