@@ -146,7 +146,7 @@ module.exports = class USCLdap{
             }
         } else {
             console.log("advanced search filter");
-            if (this.parameters && !this.parameters) {
+            if (this.parameters) {
                 for (var i in this.parameters) {
                     if (validadvparameters.includes(i)) {
                         advfilter += "("+mappingadvparameters[i]+"=*"+this.parameters[i]+"*)";
