@@ -120,68 +120,71 @@ module.exports = class USCLdap{
         };
     }
 
-    get facultystaffOptions() {
-        // ldap filter depends on model which are determined by parameters
-        var validadvparameters = this.FACULTYSTAFF_VALIDINPUTPARAMETERS; 
-        var mappingadvparameters = this.FACULTYSTAFF_MAPPINGINPUTPARAMETERS; 
+    //ldapOptions(type="facultystaff") {
+    ldapOptions(type) {
+        var validadvparameters = null;
+        var mappingadvparameters = null;
         var myfilter = "";
         var myattributes = [];
         var advfilter = "";
+        if (type == "student") {
+            validadvparameters = this.STUDENT_VALIDINPUTPARAMETERS; 
+            mappingadvparameters = this.STUDENT_MAPPINGINPUTPARAMETERS; 
+        } else {
+            type = "facultystaff"
+            validadvparameters = this.FACULTYSTAFF_VALIDINPUTPARAMETERS; 
+            mappingadvparameters = this.FACULTYSTAFF_MAPPINGINPUTPARAMETERS; 
+        }
+        
+        // ldap filter depends on model which are determined by parameters
         if (this.parameters && typeof this.parameters.basic !== 'undefined' && this.parameters.basic) {
             console.log("basic search filter");
-            myfilter = this.FACULTYSTAFF_BASICSEARCH.replace(/_BASIC_/g,this.parameters.basic);
+            if (type == "student") {
+                myfilter = this.STUDENT_BASICSEARCH.replace(/_BASIC_/g,this.parameters.basic);
+            } else {
+                myfilter = this.FACULTYSTAFF_BASICSEARCH.replace(/_BASIC_/g,this.parameters.basic);
+            }
         } else {
             console.log("advanced search filter");
-            for (var i in this.parameters) {
-                if (validadvparameters.includes(i)) {
-                    advfilter += "("+mappingadvparameters[i]+"=*"+this.parameters[i]+"*)";
+            if (this.parameters && !this.parameters) {
+                for (var i in this.parameters) {
+                    if (validadvparameters.includes(i)) {
+                        advfilter += "("+mappingadvparameters[i]+"=*"+this.parameters[i]+"*)";
+                    }
                 }
+            } else {
+                advfilter ="(objectclass=*)";
             }
-            myfilter = "(&"+advfilter+")";
+            if (type == "student") {
+                myfilter = "(&"+advfilter+"(uscStudent=Y))";
+            } else {
+                myfilter = "(&"+advfilter+")";
+            }
             console.log("advance filter: "+myfilter);
         }
         if (this.parameters && typeof this.parameters.count !== 'undefined' && this.parameters.count) {
             myattributes = this.COUNT_ATTRIBUTES;
         } else {
-            myattributes = this.FACULTYSTAFF_ATTRIBUTES;
+            if (type == "student") {
+                myattributes = this.STUDENT_ATTRIBUTES;
+            } else {
+                 myattributes = this.FACULTYSTAFF_ATTRIBUTES;
+            }
         }
         return {
              filter: myfilter,
              scope: 'sub',
+             sizeLimit: 100,
              attributes: myattributes
         };
     }
 
+    get facultystaffOptions() {
+        return this.ldapOptions("facultystaff");
+    }
+
     get studentOptions() {
-        // ldap filter depends on model which are determined by parameters
-        var validadvparameters = this.STUDENT_VALIDINPUTPARAMETERS; 
-        var mappingadvparameters = this.STUDENT_MAPPINGINPUTPARAMETERS; 
-        var myfilter = "";
-        var myattributes = [];
-        var advfilter = "";
-        if (this.parameters.basic) {
-            console.log("basic search filter");
-            myfilter = this.STUDENT_BASICSEARCH.replace(/_BASIC_/g,this.parameters.basic);
-        } else {
-            console.log("advanced search filter");
-            for (var i in this.parameters) {
-                if (validadvparameters.includes(i)) {
-                    advfilter += "("+mappingadvparameters[i]+"=*"+this.parameters[i]+"*)";
-                }
-            }
-            myfilter = "(&"+advfilter+"(uscStudent=Y))";
-            console.log("advance filter: "+myfilter);
-        }
-        if (this.parameters.count) {
-            myattributes = this.COUNT_ATTRIBUTES;
-        } else {
-            myattributes = this.STUDENT_ATTRIBUTES;
-        }
-        return {
-             filter: myfilter,
-             scope: 'sub',
-             attributes: myattributes
-        };
+        return this.ldapOptions("student");
     }
 
     print() {
