@@ -3,7 +3,7 @@ const Controller = require('../controller');
 //jest.mock('./controller');
 
 
-test('Testing null path search', () => {
+test('Testing null path parameter', () => {
     const event_null_path = {
         "path": "",
     };

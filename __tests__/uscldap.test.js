@@ -2,9 +2,8 @@
 const USCLdap = require('../uscldap');
 
 
-test('Pass', () => {
+test('Dummy - will always pass', () => {
     var event = {
-        "path": "/student/scqh4mf5",
         "queryStringParameters": {
             "test": "test1",
             "first": "firstname",
@@ -12,6 +11,16 @@ test('Pass', () => {
     };
     var uscldap = new USCLdap(event.queryStringParameters);
     expect(1).toBe(1);
+});
+
+test('Testing - null query string parameter', () => {
+    var event = {
+        "queryStringParameters": null
+    };
+    var expectedOptions = {"filter":"(&(objectclass=*))","scope":"sub","sizeLimit":100,"attributes":["dn","mail","telephonenumber","uscpvid","uscsorteddisplayname"]};
+    var uscldap = new USCLdap(event.queryStringParameters);
+    expect(uscldap.parameters).toBe(null);
+    expect(uscldap.facultystaffOptions).toMatchObject(expectedOptions);
 });
 
 
