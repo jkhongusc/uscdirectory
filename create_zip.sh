@@ -2,6 +2,8 @@
 
 
 zip -qr onlinedir.zip node_modules
+zip -qg onlinedir.zip controller.js
+zip -qg onlinedir.zip uscldap.js
 zip -qg onlinedir.zip main.js
 
 # upload automatically to s3
