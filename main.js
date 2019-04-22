@@ -113,15 +113,32 @@ exports.handler = function(event, context, callback) {
     //slackpost("Starting broken link checker for: "+url);
 
 
-    // which event parameter to use as logic controller
-    // event.path
-    var controller = require('./controller');
+    // check required event parameters - exit program if not set
+    if (!event) { 
+        var error = new Error('event variable not set');
+        callback(error);
+        return;
+    } else if (!event.hasOwnProperty('queryStringParameters')) {
+        var error = new Error('event queryStringParameters not set');
+        callback(error);
+        return;
+    } else if (!event.hasOwnProperty('path')) {
+        var error = new Error('event path properties not set');
+        callback(error);
+        return;
+    }
+
+    const Controller = require('./controller');
     const USCLdap = require('./uscldap');
+    var controller = new Controller(event.path);
+    console.log(controller.path);
+
     var uscldapclient = new USCLdap(event.queryStringParameters);
     if (controller.isUscpvidQuery) {
         uscldapclient.uscpvid = controller.uscpvid;
     }
     uscldapclient.print();
+    process.exit();
     /*
     controller.print();
     console.log('isFacultyStaff: ' + controller.isFacultyStaffQuery);
@@ -175,6 +192,7 @@ exports.handler = function(event, context, callback) {
     var client = ldap.createClient({
           url: `${ldapurl}`
     });
+    var results = [];
     client.bind(ldapusername,ldappassword, function(err) {
         if (err) {
           console.log('ldap bind error: ' + err);
@@ -187,16 +205,11 @@ exports.handler = function(event, context, callback) {
             //client.search (ldapbase,opts,(err,res) => {
             client.search (ldapbase,ldapoptions,(err,res) => {
                 res.on('searchEntry', (entry) => {
-                    console.log('Entry', JSON.stringify(entry.object));
-                    var response = {
-                        "statusCode": 200,
-                        "headers": {
-                            "my_header": "my_value"
-                        },
-                        "body": JSON.stringify(entry.object),
-                        "isBase64Encoded": false
-                     };
-                     callback(null,response);
+                    //console.log('Entry', JSON.stringify(entry.object));
+                    var tmpentry = JSON.parse( JSON.stringify(entry.object));
+                    delete tmpentry.controls;
+                    delete tmpentry.dn;
+                    results.push(JSON.parse( JSON.stringify(tmpentry)));
                 });
                 res.on('searchReference', (referral) => {
                     //console.log('Referral', referral);
@@ -206,6 +219,16 @@ exports.handler = function(event, context, callback) {
                 });
                 res.on('end', (result) => {
                     console.log('search end: unbinding');
+                    console.log('results', JSON.stringify(results));
+                    var response = {
+                        "statusCode": 200,
+                        "headers": {
+                            "my_header": "my_value"
+                        },
+                        "body": JSON.stringify(results),
+                        "isBase64Encoded": false
+                     };
+                     callback(null,response);
                     //console.log('Result is', result);
                     client.unbind(err => {
                         //callback(null,"completed successfully");

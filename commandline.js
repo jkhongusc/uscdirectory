@@ -10,7 +10,7 @@ event =
 {
     "resource": "/{faculty-staff+}",
 //    "path": "/faculty-staff/scmq7nz9",
-    "path": "/faculty-staff",
+    "path": "/student",
     "httpMethod": "GET",
     "headers": null,
     "multiValueHeaders": null,
@@ -26,7 +26,7 @@ event =
         "major": "major1",
         "school": "school1",
 //        "count": "blah",
-//        "basic": "jkhong"
+//        "basic": "hong"
     },
     "multiValueQueryStringParameters": {
         "test1": [
@@ -38,7 +38,7 @@ event =
     },
     "stageVariables": null,
     "requestContext": {
-        "path": "/dir/faculty-staff/scmq7nz9",
+        "path": "/dir/student/scmq7nz9",
         "accountId": "158432785907",
         "resourceId": "2e35xf",
         "stage": "test-invoke-stage",

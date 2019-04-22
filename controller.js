@@ -1,18 +1,18 @@
 "use strict";
 
-class Controller {
-    constructor (event) {
-        this._event = event;
+module.exports = class Controller {
+    constructor (path) {
+        this._path = path;
     }
 
-    set event(event) {
-        this._event = event;
+    set path(path) {
+        this._path = path;
     }
-    get event() {
-        return this._event;
+    get path() {
+        return this._path;
     }
     get uscpvid() {
-        var parts = this._event.path.split('/');
+        var parts = this.path.split('/');
         if (parts[parts.length-1].length == 8 && !/[^a-zA-Z0-9]/.test(parts[parts.length-1])) {
             return parts[parts.length-1];
         } else {
@@ -21,7 +21,9 @@ class Controller {
     }
 
     get isFacultyStaffQuery() {
-        if (this._event.path.indexOf('faculty-staff') > -1) {
+        // if path is not set or null default to faculty-staff
+        //if (typeof this.path == 'undefined' || this.path == null || this.path.indexOf('faculty-staff') > -1) {
+        if (typeof this.path == 'undefined' || !this.path || this.path.indexOf('faculty-staff') > -1) {
             return true;
         } else {
             return false;
@@ -29,7 +31,7 @@ class Controller {
     }
 
     get isStudentQuery() {
-        if (this._event.path.indexOf('student') > -1) {
+        if (this.path.indexOf('student') > -1) {
             return true;
         } else {
             return false;
@@ -37,12 +39,12 @@ class Controller {
     }
 
     get isUscpvidQuery() {
-        if (!this._event.path) {
+        if (typeof this.path == 'undefined' || !this.path) { 
             return false;
         }
-        var parts = this._event.path.split('/');
+        var parts = this.path.split('/');
         /*
-        console.log("entire path: "+this._event.path);
+        console.log("entire path: "+this.path);
         console.log("last part path: "+parts[parts.length-1]);
         console.log("last part length: "+parts[parts.length-1].length);
         */
@@ -54,14 +56,10 @@ class Controller {
         }
     }
 
-    get ldapFilter() {
-        // should we add ldap filter logic in here or a separate class?
-    }
-
     print() {
-        console.log(JSON.stringify(this.event));
+        console.log(JSON.stringify(this.path));
     }
 }
 
-module.exports = new Controller(event);
+//module.exports = new Controller(path);
 
